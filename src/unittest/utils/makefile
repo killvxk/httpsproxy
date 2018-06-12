@@ -17,8 +17,7 @@
 GTEST_DIR = unittest/googletest/googletest
 
 # Where to find user code.
-USER_TEST_DIR = unittest/utils/print
-USER_DIR = utils/print
+UTILS_USER_TEST_DIR = unittest/utils
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -33,7 +32,7 @@ CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = $(OBJDIR)/utils_dc_print_unittest
+TESTS = $(OBJDIR)/hpy_stringutil_ut
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -47,11 +46,8 @@ all : $(TESTS)
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(OBJDIR)/dc_print.o : $(USER_DIR)/dc_print.cpp $(USER_DIR)/dc_print.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/dc_print.cpp -o $@
+$(OBJDIR)/hpy_stringutil_ut.o : $(UTILS_USER_TEST_DIR)/hpy_stringutil_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(UTILS_USER_TEST_DIR)/hpy_stringutil_ut.cc -o $@
 
-$(OBJDIR)/dc_print_unittest.o : $(USER_TEST_DIR)/dc_print_unittest.cpp $(USER_DIR)/dc_print.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_TEST_DIR)/dc_print_unittest.cpp -o $@
-
-$(OBJDIR)/utils_dc_print_unittest : $(OBJDIR)/dc_print.o $(OBJDIR)/dc_print_unittest.o $(OBJDIR)/gtest_main.a
+$(OBJDIR)/hpy_stringutil_ut : $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/hpy_stringutil_ut.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

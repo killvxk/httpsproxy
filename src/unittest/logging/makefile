@@ -17,8 +17,7 @@
 GTEST_DIR = unittest/googletest/googletest
 
 # Where to find user code.
-USER_TEST_DIR = unittest/utils/args
-USER_DIR = utils/args
+LOGGING_USER_TEST_DIR = unittest/logging
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -29,11 +28,11 @@ CPPFLAGS += -isystem $(GTEST_DIR)/include
 CPPFLAGS += -I .
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread
+CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread -std=c++11
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = $(OBJDIR)/utils_dc_args_unittest
+TESTS = $(OBJDIR)/hpy_logging_ut $(OBJDIR)/hpy_config_ut
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -47,15 +46,16 @@ all : $(TESTS)
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(OBJDIR)/dc_args.o : $(USER_DIR)/dc_args.cpp $(USER_DIR)/dc_args.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/dc_args.cpp -o $@
-$(OBJDIR)/dc_options.o : $(USER_DIR)/dc_options.cpp $(USER_DIR)/dc_options.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/dc_options.cpp -o $@
-$(OBJDIR)/dc_option_error.o : $(USER_DIR)/dc_option_error.cpp $(USER_DIR)/dc_option_error.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/dc_option_error.cpp -o $@
+$(OBJDIR)/hpy_logging_ut.o : $(LOGGING_USER_TEST_DIR)/hpy_logging_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(LOGGING_USER_TEST_DIR)/hpy_logging_ut.cc -o $@
 
-$(OBJDIR)/dc_args_unittest.o : $(USER_TEST_DIR)/dc_args_unittest.cpp $(USER_DIR)/dc_args.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_TEST_DIR)/dc_args_unittest.cpp -o $@
-
-$(OBJDIR)/utils_dc_args_unittest : $(OBJDIR)/dc_args.o $(OBJDIR)/dc_options.o $(OBJDIR)/dc_option_error.o $(OBJDIR)/dc_args_unittest.o $(OBJDIR)/gtest_main.a
+$(OBJDIR)/hpy_logging_ut : $(OBJDIR)/hpy_logging_ut.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_logging.o  $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+$(OBJDIR)/hpy_config_ut.o : $(LOGGING_USER_TEST_DIR)/hpy_config_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(LOGGING_USER_TEST_DIR)/hpy_config_ut.cc -o $@
+
+$(OBJDIR)/hpy_config_ut : $(OBJDIR)/hpy_config_ut.o $(OBJDIR)/hpy_config.o  $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+

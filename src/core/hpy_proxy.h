@@ -20,13 +20,13 @@ class Proxy
 {
 public:
     Proxy();
-    Proxy(int tcp_queue_capacity);
+    Proxy(int max_connections);
     bool RunProxyService();
 
 private:
-    const int kTcpQueueCapacity_;
-    ThreadsafeQueue<Tcp> proxy_tcp_queue_;
-    Handler *handler_;
+    const short kProxyServerPort_;
+    const int kMaxConnections_;
+    int current_connection_num_;
 
     bool Init();
     static bool ProxyService();
