@@ -12,23 +12,9 @@
 # project, except GTEST_HEADERS, which you can use in your own targets
 # but shouldn't modify.
 
-# Points to the root of Google Test, relative to where this file is.
-# Remember to tweak this if you move this file.
-GTEST_DIR = unittest/googletest/googletest
 
 # Where to find user code.
 UTILS_USER_TEST_DIR = unittest/utils
-
-# Flags passed to the preprocessor.
-# Set Google Test's header directory as a system directory, such that
-# the compiler doesn't generate warnings in Google Test headers.
-CPPFLAGS += -isystem $(GTEST_DIR)/include
-
-#USER_DIR headers
-CPPFLAGS += -I .
-
-# Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.

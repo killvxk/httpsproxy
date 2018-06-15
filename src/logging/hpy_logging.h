@@ -18,7 +18,10 @@ class Logging
 public:
     Logging();
     Logging& WithFilenameAndLine(const std::string file_name, int line_no);
+    bool Debug(const std::string info);
     bool Info(const std::string info);
+    bool Warn(const std::string info);
+    bool Error(const std::string info);
     static std::string GetCurrentTime();
 
 private:

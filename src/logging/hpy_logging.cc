@@ -6,6 +6,8 @@
 #include <sys/time.h>
 #include <iostream>
 #include <fstream>
+#include <thread>
+#include <sstream>
 #include <string>
 #include <unistd.h>
 #include <exception>
@@ -43,14 +45,33 @@ Logging& Logging::WithFilenameAndLine(const std::string file_name, int line_no)
 
 std::string Logging::GetPrefix()
 {
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    std::string thread_id = ss.str();
     return GetCurrentTime() + " "\
            + file_name_ + ":"\
-           + std::to_string(line_no_);
+           + std::to_string(line_no_) + ":"\
+           + thread_id;
+}
+
+bool Logging::Debug(const std::string info)
+{
+    return WriteLine(GetPrefix() + " DEBUG: " + info + "\n");
 }
 
 bool Logging::Info(const std::string info)
 {
     return WriteLine(GetPrefix() + " INFO: " + info + "\n");
+}
+
+bool Logging::Warn(const std::string info)
+{
+    return WriteLine(GetPrefix() + " WARN: " + info + "\n");
+}
+
+bool Logging::Error(const std::string info)
+{
+    return WriteLine(GetPrefix() + " ERROR: " + info + "\n");
 }
 
 std::string Logging::GetCurrentTime()
@@ -76,6 +97,8 @@ bool Logging::WriteLine(std::string content)
         ofs.write(content.c_str(), content.length());
         is_busy_ = false;
         cond_.notify_one();
+        //when debug, using the following statement
+        ofs.flush();
         return true;
     }
     catch(std::exception &e)

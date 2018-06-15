@@ -1,10 +1,6 @@
 #ifndef HPY_CORE_HPY_PROXY_
 #define HPY_CORE_HPY_PROXY_ 
 
-#ifndef HPY_CORE_HPY_TCP_
-#include "core/hpy_tcp.h"
-#endif
-
 #ifndef HPY_CORE_HPY_HANDLER_
 #include "core/hpy_handler.h"
 #endif
@@ -24,12 +20,12 @@ public:
     bool RunProxyService();
 
 private:
-    const short kProxyServerPort_;
     const int kMaxConnections_;
     int current_connection_num_;
 
     bool Init();
-    static bool ProxyService();
+    bool ProxyService();
+    static void ServiceThread(int conn_fd, bool is_https);
 
 };
 

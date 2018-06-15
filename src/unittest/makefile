@@ -24,7 +24,7 @@ CPPFLAGS += -isystem $(GTEST_DIR)/include
 
 
 # Flags passed to the C++ compiler.
-CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread
+CXXFLAGS += -g -Wall -Wno-unused -Wno-sign-compare -Wextra -pthread -I. -std=c++11
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.

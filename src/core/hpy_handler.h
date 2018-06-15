@@ -5,25 +5,34 @@
 #include "collections/hpy_threadsafe_queue.h"
 #endif
 
-#ifndef HPY_CORE_HPY_TCP_
-#include "core/hpy_tcp.h"
+#ifndef HPY_CORE_HPY_HTTPMESSAGE_
+#include "core/hpy_httpmessage.h"
 #endif
 
-#include <map>
+#include <iostream>
+#include <string>
 
 class Handler
 {
 public:
-    Handler(ThreadsafeQueue<Tcp> &thread_safe_queue);
+    Handler();
+    Handler(int conn_fd, bool is_https);
     bool RunHandlerService();
+    std::string GetIp(std::string host);
+    bool ConnectServer(std::string host);
          
 private:
-    ThreadsafeQueue<Tcp> &proxy_tcp_queue_;
-    //std::string 格式为:src_ip+src_port
-    std::map<std::string, ThreadsafeQueue<Tcp> & > connection_map_;
-    bool Dispatcher();
-    static bool HandlerService();
-    ThreadsafeQueue<Tcp>& CreateConnection(std::string src_ip, std::string src_port, std::string host);
+    bool does_get_host_;
+    bool is_https_;
+    const int client_fd_;
+    int server_fd_;
+    std::string server_ip_;
+    std::string host_;
+    bool HandlerService();
+    int MyRead(int fd, void *ptr, int n);
+    int MyWrite(int fd, const void *buff, int n);
+    
+    
 };
 
 #endif

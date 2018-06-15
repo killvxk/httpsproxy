@@ -16,10 +16,13 @@ int main(int argc,char *argv[])
     try
     {
         LOG.Info("start httpsproxy");
+        Proxy proxy;
+        proxy.RunProxyService();
         return 0;
     }
-    catch(exception& e)
+    catch(std::exception& e)
     {
-        return 0;
+        LOG.Error(e.what());
+        return -1;
     }
 }

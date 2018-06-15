@@ -14,12 +14,14 @@
 
 # Points to the root of Google Test, relative to where this file is.
 # Remember to tweak this if you move this file.
+
+
 # Where to find user code.
-LOGGING_USER_TEST_DIR = unittest/logging
+CORE_USER_TEST_DIR = unittest/core
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = $(OBJDIR)/hpy_logging_ut $(OBJDIR)/hpy_config_ut
+TESTS = $(OBJDIR)/hpy_handler_ut $(OBJDIR)/hpy_httpmessage_ut 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -33,16 +35,18 @@ all : $(TESTS)
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-$(OBJDIR)/hpy_logging_ut.o : $(LOGGING_USER_TEST_DIR)/hpy_logging_ut.cc  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(LOGGING_USER_TEST_DIR)/hpy_logging_ut.cc -o $@
+$(OBJDIR)/hpy_handler_ut.o : $(CORE_USER_TEST_DIR)/hpy_handler_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)/hpy_logging_ut : $(OBJDIR)/hpy_logging_ut.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_logging.o  $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
+$(OBJDIR)/hpy_handler_ut : $(OBJDIR)/hpy_handler_ut.o $(OBJDIR)/hpy_handler.o $(OBJDIR)/hpy_logging.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/hpy_httpmessage.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
-$(OBJDIR)/hpy_config_ut.o : $(LOGGING_USER_TEST_DIR)/hpy_config_ut.cc  $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(LOGGING_USER_TEST_DIR)/hpy_config_ut.cc -o $@
 
-$(OBJDIR)/hpy_config_ut : $(OBJDIR)/hpy_config_ut.o $(OBJDIR)/hpy_config.o  $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
+$(OBJDIR)/hpy_httpmessage_ut.o : $(CORE_USER_TEST_DIR)/hpy_httpmessage_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/hpy_httpmessage_ut : $(OBJDIR)/hpy_httpmessage_ut.o $(OBJDIR)/hpy_httpmessage.o $(OBJDIR)/hpy_logging.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
 
 
