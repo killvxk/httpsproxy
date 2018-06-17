@@ -21,10 +21,10 @@ public:
 
 private:
     const int kMaxConnections_;
-    int current_connection_num_;
+    static int current_connection_num_;
 
     bool Init();
-    bool ProxyService();
+    static void ProxyServiceThread(bool is_https);
     static void ServiceThread(int conn_fd, bool is_https);
 
 };

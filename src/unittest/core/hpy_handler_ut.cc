@@ -16,11 +16,11 @@ protected:
 
 TEST_F(HandlerTest, GetIp_ShouldPass)
 {
-    ASSERT_NE("", handler.GetIp("baidu.com"));
+    ASSERT_NE("", handler.GetIp("bing.com"));
 }
 
 TEST_F(HandlerTest, ConnectServer_ShouldPass)
 {
-    ASSERT_EQ(true, handler.ConnectServer("baidu.com"));
+    ASSERT_EQ(true, handler.ConnectServer(handler.GetIp("bing.com")));
 }
 

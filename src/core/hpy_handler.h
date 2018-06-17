@@ -19,7 +19,7 @@ public:
     Handler(int conn_fd, bool is_https);
     bool RunHandlerService();
     std::string GetIp(std::string host);
-    bool ConnectServer(std::string host);
+    bool ConnectServer(std::string server_ip);
          
 private:
     bool does_get_host_;
@@ -31,7 +31,6 @@ private:
     bool HandlerService();
     int MyRead(int fd, void *ptr, int n);
     int MyWrite(int fd, const void *buff, int n);
-    
     
 };
 

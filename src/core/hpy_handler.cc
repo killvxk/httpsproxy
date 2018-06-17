@@ -26,6 +26,22 @@
 #include "logging/hpy_logging.h"
 #endif
 
+#ifndef HPY_CORE_HPY_DECRYPTION_
+#include "core/hpy_decryption.h"
+#endif
+
+#ifndef HPY_CORE_HPY_ENCRYPTION_
+#include "core/hpy_encryption.h"
+#endif
+
+#ifndef HPY_UTILS_ARGS_HPY_ARGS_H_
+#include "utils/args/hpy_args.h"
+#endif
+
+#ifndef HPY_UTILS_ARGS_HPY_ARGS_H_
+#include "utils/args/hpy_options.h"
+#endif
+
 typedef struct sockaddr SA; 
 
 Handler::Handler():client_fd_(-1)
@@ -61,7 +77,11 @@ bool Handler::HandlerService()
     maxfd = client_fd_;
 
     int n;
-    char buff[hpy::Tcp::kMaxDataLength];
+    unsigned char buff[hpy::Tcp::kMaxDataLength];
+    int keep_alive = 1;
+    setsockopt(client_fd_, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive));
+
+    bool is_run_as_server = args.HasKey(Options::RUN_AS_SERVER);
     for( ; ; )
     {
         rset = allset;
@@ -70,26 +90,47 @@ bool Handler::HandlerService()
         {
             if( (n = read(client_fd_, buff, hpy::Tcp::kMaxDataLength)) == 0)
                 break;
+            else if(n == -1)
+            {
+                if(errno != EINTR)
+                {
+                    LOG.Error("errno: " + std::to_string(errno));
+                    break;
+                }
+            }
             else
             {
+                LOG.Debug("1, " + std::to_string(n));
+                if(is_run_as_server)
+                    hpy::Tcp::Decryption::Decrypt(hpy::Tcp::Encryption::kCaesarCipher, buff, n, hpy::Tcp::Encryption::kCaesarCipherDefaultKey);
+                else
+                    hpy::Tcp::Encryption::Encrypt(hpy::Tcp::Encryption::kCaesarCipher, buff, n, hpy::Tcp::Encryption::kCaesarCipherDefaultKey);
                 if(does_get_host_ == false)
                 {
-                    HttpMessage httpmessage(buff, n, is_https_);
-                    host_ = httpmessage.GetHost();
-                    LOG.Info("host: " + host_);
-                    if(host_ != "")
+                    if(is_run_as_server == true)
                     {
-                        if (ConnectServer(host_) == true)
-                        {
-                            does_get_host_ = true;
-                            FD_SET(server_fd_, &allset);
-                            maxfd = maxfd > server_fd_ ? maxfd : server_fd_;
-                        }
-                        else
+                        HttpMessage httpmessage(buff, n, is_https_);
+                        host_ = httpmessage.GetHost();
+                        LOG.Info("host: " + host_);
+                        if(host_ == "" || (server_ip_ = GetIp(host_)) == "")
                             break;
                     }
-                }
-                LOG.Debug("1, " + std::to_string(n));
+                    else
+                    {
+                        host_ = "httpsproxy";
+                        server_ip_ = args.Get(Options::HTTPSPROXY_IP);
+                    }
+                    LOG.Info(host_ + ":" + server_ip_);
+                    if (ConnectServer(server_ip_) == true)
+                    {
+                        does_get_host_ = true;
+                        FD_SET(server_fd_, &allset);
+                        maxfd = maxfd > server_fd_ ? maxfd : server_fd_;
+                        setsockopt(server_fd_, SOL_SOCKET, SO_KEEPALIVE, &keep_alive, sizeof(keep_alive));
+                    }
+                    else
+                        break;
+                }   
                 n = write(server_fd_, buff, n);   
                 LOG.Debug("2, " + std::to_string(n));
             }
@@ -98,9 +139,21 @@ bool Handler::HandlerService()
         {
             if( (n = read(server_fd_, buff, hpy::Tcp::kMaxDataLength)) == 0)
                 break;
+            else if(n == -1)
+            {
+                if(errno != EINTR)
+                {
+                    LOG.Error("errno: " + std::to_string(errno));
+                    break;
+                }
+            }
             else
             {
                 LOG.Debug("3, " + std::to_string(n));
+                if(is_run_as_server == false)
+                    hpy::Tcp::Decryption::Decrypt(hpy::Tcp::Encryption::kCaesarCipher, buff, n, hpy::Tcp::Encryption::kCaesarCipherDefaultKey);
+                else
+                    hpy::Tcp::Encryption::Encrypt(hpy::Tcp::Encryption::kCaesarCipher, buff, n, hpy::Tcp::Encryption::kCaesarCipherDefaultKey);
                 n = write(client_fd_, buff, n);   
                 LOG.Debug("4, " + std::to_string(n));
             }
@@ -113,11 +166,8 @@ bool Handler::HandlerService()
     return true;
 }
 
-bool Handler::ConnectServer(std::string host)
+bool Handler::ConnectServer(std::string server_ip)
 {
-    if((server_ip_ = GetIp(host)) == "")
-        return false;
-    LOG.Info(host + " : " + server_ip_);
     struct sockaddr_in server_addr;
     server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
     bzero(&server_addr, sizeof(server_addr));
@@ -126,15 +176,15 @@ bool Handler::ConnectServer(std::string host)
         server_addr.sin_port = htons(hpy::Proxy::kHttpsDefaultPort);
     else
         server_addr.sin_port = htons(hpy::Proxy::kHttpDefaultPort);
-    inet_pton(AF_INET, server_ip_.c_str(), &server_addr.sin_addr);
+    inet_pton(AF_INET, server_ip.c_str(), &server_addr.sin_addr);
     if (connect(server_fd_, (SA *)&server_addr, sizeof(server_addr)) < 0)
     {
-        LOG.Error("conn to " + host + " failed");
+        LOG.Error("conn to " + server_ip + " failed, errno: " + std::to_string(errno));
         return false;
     }
     else
     {
-        LOG.Info("conn to " + host + " successfully");
+        LOG.Info("conn to " + server_ip + " successfully");
         return true;
     }
 }
@@ -160,50 +210,4 @@ std::string Handler::GetIp(std::string host)
             break;
     }
     return "";
-}
-
-int Handler::MyRead(int fd, void *buff, int n)
-{
-    int nleft;
-    int nread;
-    char *ptr;
-    ptr = (char*)buff;
-    nleft = n;
-    while(nleft > 0)
-    {
-        if( (nread = read(fd, ptr, nleft)) < 0)
-        {
-            if (errno == EINTR)
-                nread = 0;
-            else
-                return -1;
-        }
-        else if(nread == 0)
-            break;
-        nleft -= nread;
-        ptr += nread;
-    }
-    return (n - nleft);
-}
-
-int Handler::MyWrite(int fd, const void *buff, int n)
-{
-    int nleft;
-    int nwritten;
-    const char *ptr;
-    ptr = (char*)buff;
-    nleft = n;
-    while (nleft > 0)
-    {
-        if( (nwritten = (fd, ptr, nleft)) <= 0)
-        {
-            if( nwritten < 0 && errno == EINTR)
-                nwritten = 0;
-            else
-                return -1;
-        }
-        nleft -= nwritten;
-        ptr += nwritten;
-    }
-    return n;
 }

@@ -9,7 +9,6 @@ namespace hpy
         const short kHttpDefaultPort = 80;
         const int kMaxConnections = 50;   
         const int kListenQ = 10;
-
     };//proxy
 
     namespace Tcp
@@ -17,6 +16,8 @@ namespace hpy
         const int kMss = 1460;
         const int kMaxDataLength = 65535;
     };//Tcp
+
+
 
 };//hpy
 #endif

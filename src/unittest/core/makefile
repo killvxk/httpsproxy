@@ -21,7 +21,7 @@ CORE_USER_TEST_DIR = unittest/core
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = $(OBJDIR)/hpy_handler_ut $(OBJDIR)/hpy_httpmessage_ut 
+TESTS = $(OBJDIR)/hpy_handler_ut $(OBJDIR)/hpy_httpmessage_ut $(OBJDIR)/hpy_encryption_ut 
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -38,9 +38,8 @@ all : $(TESTS)
 $(OBJDIR)/hpy_handler_ut.o : $(CORE_USER_TEST_DIR)/hpy_handler_ut.cc  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)/hpy_handler_ut : $(OBJDIR)/hpy_handler_ut.o $(OBJDIR)/hpy_handler.o $(OBJDIR)/hpy_logging.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/hpy_httpmessage.o $(OBJDIR)/gtest_main.a
+$(OBJDIR)/hpy_handler_ut : $(OBJDIR)/hpy_handler_ut.o $(OBJDIR)/hpy_handler.o $(OBJDIR)/hpy_logging.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/hpy_httpmessage.o $(OBJDIR)/hpy_args.o $(OBJDIR)/hpy_options.o $(OBJDIR)/hpy_option_error.o $(OBJDIR)/hpy_encryption.o $(OBJDIR)/hpy_decryption.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
 
 $(OBJDIR)/hpy_httpmessage_ut.o : $(CORE_USER_TEST_DIR)/hpy_httpmessage_ut.cc  $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
@@ -48,5 +47,11 @@ $(OBJDIR)/hpy_httpmessage_ut.o : $(CORE_USER_TEST_DIR)/hpy_httpmessage_ut.cc  $(
 $(OBJDIR)/hpy_httpmessage_ut : $(OBJDIR)/hpy_httpmessage_ut.o $(OBJDIR)/hpy_httpmessage.o $(OBJDIR)/hpy_logging.o $(OBJDIR)/hpy_config.o $(OBJDIR)/hpy_stringutil.o $(OBJDIR)/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
+
+$(OBJDIR)/hpy_encryption_ut.o : $(CORE_USER_TEST_DIR)/hpy_encryption_ut.cc  $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+$(OBJDIR)/hpy_encryption_ut : $(OBJDIR)/hpy_encryption_ut.o $(OBJDIR)/hpy_encryption.o $(OBJDIR)/hpy_decryption.o $(OBJDIR)/gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 

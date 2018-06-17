@@ -19,7 +19,7 @@ class HttpMessage
 {
 public:
     HttpMessage();
-    HttpMessage(char *buff, int n, bool is_https);
+    HttpMessage(void *buff, int n, bool is_https);
     bool Init(char *buff, int n, bool is_https);
     std::string GetHost();
 

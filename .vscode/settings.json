@@ -41,6 +41,9 @@
         "typeinfo": "cpp",
         "utility": "cpp",
         "cstring": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "cerrno": "cpp",
+        "cstdarg": "cpp",
+        "forward_list": "cpp"
     }
 }

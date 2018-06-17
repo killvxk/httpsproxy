@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/obj/hpy",
+            "program": "${workspaceFolder}/obj/hpy_handler_ut",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/src",

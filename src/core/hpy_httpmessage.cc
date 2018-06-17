@@ -10,9 +10,9 @@
 #include "utils/hpy_stringutil.h"
 #endif
 
-HttpMessage::HttpMessage(char *buff, int n, bool is_https)
+HttpMessage::HttpMessage(void *buff, int n, bool is_https)
 {
-    Init(buff, n, is_https);
+    Init((char*)buff, n, is_https);
 }
 
 HttpMessage::HttpMessage()
