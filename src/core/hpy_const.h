@@ -6,7 +6,7 @@ namespace hpy
     namespace Proxy
     {
         const short kHttpsDefaultPort = 443;
-        const short kHttpDefaultPort = 80;
+        const short kHttpDefaultPort = 8080;
         const int kMaxConnections = 50;   
         const int kListenQ = 10;
     };//proxy
