@@ -21,6 +21,14 @@
 #include "logging/hpy_logging.h"
 #endif
 
+#ifndef HPY_UTILS_ARGS_HPY_ARGS_H_
+#include "utils/args/hpy_args.h"
+#endif
+
+#ifndef HPY_UTILS_ARGS_HPY_ARGS_H_
+#include "utils/args/hpy_options.h"
+#endif
+
 typedef struct sockaddr SA; 
 
 int Proxy::current_connection_num_ = 0;
@@ -58,7 +66,10 @@ void Proxy::ProxyServiceThread(bool is_https)
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if(is_https == false)
-        server_addr.sin_port = htons(hpy::Proxy::kHttpDefaultPort);
+        if(args.HasKey(Options::RUN_AS_SERVER) == true)
+            server_addr.sin_port = htons(hpy::Proxy::kHttpDefaultProxyPort);
+        else
+            server_addr.sin_port = htons(hpy::Proxy::kHttpDefaultPort);
     else
         server_addr.sin_port = htons(hpy::Proxy::kHttpsDefaultPort);
     //when protocol is 0, if the type is stream, which means tcp; if the type is datagram, means udp  
