@@ -173,7 +173,10 @@ bool Handler::ConnectServer(std::string server_ip)
     bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     if(is_https_ == true)
-        server_addr.sin_port = htons(hpy::Proxy::kHttpsDefaultPort);
+        if(args.HasKey(Options::RUN_AS_SERVER) == true)
+            server_addr.sin_port = htons(hpy::Proxy::kHttpsDefaultPort);
+        else
+            server_addr.sin_port = htons(hpy::Proxy::kHttpsDefaultProxyPort);
     else
         if(args.HasKey(Options::RUN_AS_SERVER) == true)
             server_addr.sin_port = htons(hpy::Proxy::kHttpDefaultPort);
