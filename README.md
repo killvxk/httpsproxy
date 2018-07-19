@@ -23,3 +23,15 @@ $make start-client    #use "make stop-client" to stop the client
 If you want to proxy some web, just config the web domains'ip to localhost. For example:
 to proxy example.com, we should add a line in the /etc/hosts:
 127.0.0.1   example.com
+
+#auto start httpsproxy when the computer starting
+(1) put the src/httpsproxy.sh file to /etc/init.d
+#cd httpsproxy/src
+#sudo cp httpsproxy.sh /etc/init.d
+(2) change the file mode with the following command:
+#sudo chmod 755 /etc/init.d/httpsproxy.sh
+(3) make a soft link file in /etc/rc3.d
+#sudo ln -s /etc/init.d/httpsproxy.sh /etc/rc3.d/S03httpsproxy 
+
+
+
